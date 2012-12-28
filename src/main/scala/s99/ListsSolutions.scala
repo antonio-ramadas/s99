@@ -119,15 +119,43 @@ trait ListsSolutions {
     duplicateAux(n, list)
   }
 
-  def drop[T](n: Int, list: List[T]): List[T] = ???
+  def drop[T](n: Int, list: List[T]): List[T] = {
+    def dropAux(k: Int, list: List[T]): List[T] = list match {
+      case Nil => Nil
+      case x :: xs =>
+        if(k == 1) dropAux(n, xs)
+        else x :: dropAux(k - 1, xs)
+    }
+    dropAux(n, list)
+  }
 
-  def split[T](n: Int, list: List[T]): (List[T], List[T]) = ???
+  def split[T](n: Int, list: List[T]): (List[T], List[T]) =
+    if(n == 0) (Nil, list)
+    else {
+      val (left, right) = split(n - 1, list.tail)
+      (list.head :: left, right)
+    }
 
-  def slice[T](i: Int, j: Int, list: List[T]): List[T] = ???
+  def slice[T](i: Int, j: Int, list: List[T]): List[T] =
+    if(i > 0) slice(i - 1, j - 1, list.tail)
+    else if (j > 0) list.head :: slice(i, j - 1, list.tail)
+    else Nil
 
-  def rotate[T](n: Int, list: List[T]): List[T] = ???
+  def rotate[T](n: Int, list: List[T]): List[T] =
+    if (list.isEmpty) Nil
+    else {
+      val len = length(list)
+      val pos = n % len
+      val (left, right) = split(if(pos < 0) pos + len else pos, list)
+      right ::: left
+    }
 
-  def removeAt[T](i: Int, list: List[T]): (List[T], T) = ???
+  def removeAt[T](i: Int, list: List[T]): (List[T], T) =
+    if (i == 0) (list.tail, list.head)
+    else {
+      val (rem, elem) = removeAt(i - 1, list.tail)
+      (list.head :: rem, elem)
+    }
 
   def insertAt[T](t: T, i: Int, list: List[T]): List[T] = ???
 
