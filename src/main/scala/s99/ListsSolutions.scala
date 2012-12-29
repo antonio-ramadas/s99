@@ -1,5 +1,6 @@
 package s99
 
+import util.Random
 import Solutions._
 
 trait ListsSolutions {
@@ -74,11 +75,11 @@ trait ListsSolutions {
   def encode[T](list: List[T]): List[(Int, T)] =
     pack(list).map { x => (length(x), x.head) }
 
-//  // without using map (has errors)
-//  def encode[T](list: List[T]): List[(Int, T)] = pack(list) match {
-//    case Nil => Nil
-//    case x :: xs => (length(x), x.head) :: encode(xs)
-//  }
+  //  // without using map (has errors)
+  //  def encode[T](list: List[T]): List[(Int, T)] = pack(list) match {
+  //    case Nil => Nil
+  //    case x :: xs => (length(x), x.head) :: encode(xs)
+  //  }
 
   def encodeModified[T](list: List[T]): List[Any] = encode(list).collect {
     case (1, x) => x
@@ -123,21 +124,21 @@ trait ListsSolutions {
     def dropAux(k: Int, list: List[T]): List[T] = list match {
       case Nil => Nil
       case x :: xs =>
-        if(k == 1) dropAux(n, xs)
+        if (k == 1) dropAux(n, xs)
         else x :: dropAux(k - 1, xs)
     }
     dropAux(n, list)
   }
 
   def split[T](n: Int, list: List[T]): (List[T], List[T]) =
-    if(n == 0) (Nil, list)
+    if (n == 0) (Nil, list)
     else {
       val (left, right) = split(n - 1, list.tail)
       (list.head :: left, right)
     }
 
   def slice[T](i: Int, j: Int, list: List[T]): List[T] =
-    if(i > 0) slice(i - 1, j - 1, list.tail)
+    if (i > 0) slice(i - 1, j - 1, list.tail)
     else if (j > 0) list.head :: slice(i, j - 1, list.tail)
     else Nil
 
@@ -146,7 +147,7 @@ trait ListsSolutions {
     else {
       val len = length(list)
       val pos = n % len
-      val (left, right) = split(if(pos < 0) pos + len else pos, list)
+      val (left, right) = split(if (pos < 0) pos + len else pos, list)
       right ::: left
     }
 
@@ -157,17 +158,46 @@ trait ListsSolutions {
       (list.head :: rem, elem)
     }
 
-  def insertAt[T](t: T, i: Int, list: List[T]): List[T] = ???
+  def insertAt[T](t: T, i: Int, list: List[T]): List[T] =
+    if (i == 0) t :: list
+    else list.head :: insertAt(t, i - 1, list.tail)
 
-  def range[T](i: Int, j: Int): List[Int] = ???
+  def range[T](i: Int, j: Int): List[Int] =
+    if (i <= j) i :: range(i + 1, j)
+    else Nil
 
-  def randomSelect[T](n: Int, list: List[T]): List[T] = ???
+  //  // tailrec version
+  //  def range[T](i: Int, j: Int): List[Int] = {
+  //    def rangeAux(i: Int, j: Int, acc: List[Int]): List[Int] =
+  //      if (j < i) acc
+  //      else rangeAux(i, j - 1, j :: acc)
+  //    rangeAux(i, j, Nil)
+  //  }
 
-  def lotto[T](i: Int, j: Int): List[Int] = ???
+  def randomSelect[T](n: Int, list: List[T]): List[T] = {
+    def randomSelectAux(n: Int, len: Int, list: List[T]): List[T] = {
+      if (n == 0) Nil
+      else {
+        val (rem, elem) = removeAt(Random.nextInt(len), list)
+        elem :: randomSelectAux(n - 1, len - 1, rem)
+      }
+    }
+    randomSelectAux(n, length(list), list)
+  }
 
-  def randomPermute[T](list: List[T]): List[T] = ???
+  def lotto[T](i: Int, j: Int): List[Int] =
+    randomSelect(i, (1 to j).toList)
 
-  def combinations[T](n: Int, list: List[T]): List[List[T]] = ???
+  def randomPermute[T](list: List[T]): List[T] =
+    randomSelect(length(list), list)
+
+  def combinations[T](n: Int, list: List[T]): List[List[T]] =
+    if (n == 0) List(Nil)
+    else list match {
+      case Nil => Nil
+      case x :: xs => combinations(n, xs) ++
+        (for (rem <- combinations(n - 1, xs)) yield x :: rem)
+    }
 
   def group3[T](list: List[T]): List[List[List[T]]] = ???
 
