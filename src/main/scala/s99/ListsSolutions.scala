@@ -199,12 +199,29 @@ trait ListsSolutions {
         (for (rem <- combinations(n - 1, xs)) yield x :: rem)
     }
 
-  def group3[T](list: List[T]): List[List[List[T]]] = ???
+  def group3[T](list: List[T]): List[List[List[T]]] = groups(List(2, 3, 4), list)
 
-  def groups[T](ns: List[Int], list: List[T]): List[List[List[T]]] = ???
+  def groups[T](ns: List[Int], list: List[T]): List[List[List[T]]] = {
+    def combWithRem(n: Int, prev: List[T], list: List[T]): List[(List[T], List[T])] =
+      if (n == 0) List((Nil, prev ++ list))
+      else list match {
+        case Nil => Nil
+        case x :: xs => combWithRem(n, x :: prev, xs) ++
+          (for ((comb, rem) <- combWithRem(n - 1, prev, xs)) yield (x :: comb, rem))
+      }
 
-  def lsort[T](list: List[List[T]]): List[List[T]] = ???
+    ns match {
+      case Nil => List(Nil)
+      case x :: xs => for {
+        (comb, rem) <- combWithRem(x, Nil, list)
+        otherGroups <- groups(xs, rem)
+      } yield comb :: otherGroups
+    }
+  }
 
-  def lsortFreq[T](list: List[List[T]]): List[List[T]] = ???
+  def lsort[T](list: List[List[T]]): List[List[T]] =
+    list.sortBy { xs => length(xs) }
+
+  def lsortFreq[T](list: List[List[T]]): List[List[T]] =
+    list.groupBy { xs => length(xs) }.values.toList.sortBy { xs => length(xs) }.flatten
 }
-
