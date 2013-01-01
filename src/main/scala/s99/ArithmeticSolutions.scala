@@ -77,7 +77,7 @@ trait ArithmeticSolutions {
       }
     }
 
-  // Optional exercise: not in original s-99 problems
+  // Optional but possibly useful exercise: not in original s-99 problems
   def primes: Stream[Int] = {
     def nextPrime(n: Int): Stream[Int] =
       (n + 1 to Int.MaxValue).dropWhile(!_.isPrime).headOption match {
