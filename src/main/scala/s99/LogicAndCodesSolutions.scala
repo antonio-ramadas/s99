@@ -39,15 +39,34 @@ trait LogicAndCodesSolutions { outer =>
     def grayAux(left: Int, last: List[String]): List[String] =
       if (left == 0) last
       else grayAux(left - 1, last.map("0" + _) ::: last.reverse.map("1" + _))
-    grayAux(n - 1, List("0", "1"))
+    grayAux(n, List(""))
   }
 
   def huffman(list: List[(String,  Int)]): List[(String, String)] = {
-    implicit def ordering = new Ordering[(String, Int)] {
-      def compare(x: (String, Int), y: (String, Int)) = x._2.compare(y._2)
+    trait Node extends Ordered[Node] {
+      def freq: Int
+      def compare(that: Node) = that.freq.compare(freq)
     }
-    def queue = PriorityQueue(list: _*)
-    // while(queue.nonEmpty) println(queue.dequeue())
-    Nil
+    case class Leaf(symbol: String, freq: Int) extends Node
+    case class Internal(left: Node, right: Node) extends Node {
+      val freq = left.freq + right.freq
+    }
+
+    // a shame there is no immutable priority queue implementation in Scala
+    val queue = PriorityQueue[Node](list.map(Leaf.tupled): _*)
+    def buildTree: Node =
+      if (queue.length < 2) queue.dequeue()
+      else {
+        queue += Internal(queue.dequeue(), queue.dequeue())
+        buildTree
+      }
+
+    def codes(node: Node, prefix: String): List[(String, String)] = node match {
+      case Leaf(sym, _) => List((sym, prefix))
+      case Internal(left, right) =>
+        codes(left, prefix + "0") ::: codes(right, prefix + "1")
+    }
+
+    codes(buildTree, "").sortBy(_._1)
   }
 }
