@@ -1,33 +1,53 @@
 package s99
 
-import Solutions.???
+import Solutions._
+import collection.mutable.PriorityQueue
 
 trait LogicAndCodesSolutions { outer =>
 
   implicit def extendBoolean(a: Boolean): ExtendedBoolean = ExtendedBoolean(a)
   case class ExtendedBoolean(a: Boolean) {
-    def and (b: =>Boolean): Boolean = outer.and (a, b)
-    def or  (b: =>Boolean): Boolean = outer.or  (a, b) 
-    def nand(b: =>Boolean): Boolean = outer.nand(a, b)
-    def nor (b: =>Boolean): Boolean = outer.nor (a, b)
-    def xor (b: =>Boolean): Boolean = outer.xor (a, b)
-    def impl(b: =>Boolean): Boolean = outer.impl(a, b)
-    def equ (b: =>Boolean): Boolean = outer.equ (a, b)
-
+    def and(b: => Boolean): Boolean = outer.and(a, b)
+    def or(b: => Boolean): Boolean = outer.or(a, b)
+    def nand(b: => Boolean): Boolean = outer.nand(a, b)
+    def nor(b: => Boolean): Boolean = outer.nor(a, b)
+    def xor(b: => Boolean): Boolean = outer.xor(a, b)
+    def impl(b: => Boolean): Boolean = outer.impl(a, b)
+    def equ(b: => Boolean): Boolean = outer.equ(a, b)
   }
-  
-  def and(a: Boolean,  b: =>Boolean): Boolean = ???
-  def or(a: Boolean,   b: =>Boolean): Boolean = ???
-  def nand(a: Boolean,  b: =>Boolean): Boolean = ???
-  def nor(a: Boolean,  b: =>Boolean): Boolean = ???
-  def xor(a: Boolean,  b: =>Boolean): Boolean = ???
-  def impl(a: Boolean,  b: =>Boolean): Boolean = ???
-  def equ(a: Boolean,  b: =>Boolean): Boolean = ???
-  def not(a: Boolean) = ???
-  
-  def table2(f: (Boolean, Boolean) => Boolean): String = ???
 
-  def gray(n: Int): List[String] = ???
-  def huffman(list: List[(String,  Int)]): List[(String, String)] = ???
+  // just something to avoid using the built-in operators
+  def and(a: Boolean, b: => Boolean): Boolean = if (a) b else false
+  def or(a: Boolean, b: => Boolean): Boolean = if (a) true else b
+  def not(a: Boolean): Boolean = if (a) false else true
 
+  def nand(a: Boolean, b: => Boolean): Boolean = not(and(a, b))
+  def nor(a: Boolean, b: => Boolean): Boolean = not(or(a, b))
+  def xor(a: Boolean, b: => Boolean): Boolean = and(or(a, b), not(and(a, b)))
+  def impl(a: Boolean, b: => Boolean): Boolean = or(not(a), and(a, b))
+  def equ(a: Boolean, b: => Boolean): Boolean = not(xor(a, b))
+
+  def table2(f: (Boolean, Boolean) => Boolean): String = {
+    def domain = List((true, true), (true, false), (false, true), (false, false))
+    def toString(b: Boolean) = if (b) "true  " else "false "
+    ("A     B     result" :: domain.map {
+      case (a, b) => List(a, b, f(a, b)).map(toString).reduce(_ + _)
+    }).mkString("\n")
+  }
+
+  def gray(n: Int): List[String] = {
+    def grayAux(left: Int, last: List[String]): List[String] =
+      if (left == 0) last
+      else grayAux(left - 1, last.map("0" + _) ::: last.reverse.map("1" + _))
+    grayAux(n - 1, List("0", "1"))
+  }
+
+  def huffman(list: List[(String,  Int)]): List[(String, String)] = {
+    implicit def ordering = new Ordering[(String, Int)] {
+      def compare(x: (String, Int), y: (String, Int)) = x._2.compare(y._2)
+    }
+    def queue = PriorityQueue(list: _*)
+    // while(queue.nonEmpty) println(queue.dequeue())
+    Nil
+  }
 }
