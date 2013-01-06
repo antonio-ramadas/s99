@@ -1,6 +1,7 @@
 package s99
 
-import Solutions.???
+import math._
+import Solutions._
 
 trait BinaryTreesSolutions {
 
@@ -10,10 +11,10 @@ trait BinaryTreesSolutions {
     def addValue[S >: T <% Ordered[S]](s: S): Tree[S]
 
     def nodeCount: Int
-    def leafCount: Int = ???
-    def leafList: List[T] = ???
-    def internalList: List[T] = ???
-    def atLevel(n: Int): List[T] = ???
+    def leafCount: Int
+    def leafList: List[T]
+    def internalList: List[T]
+    def atLevel(n: Int): List[T]
 
     def preOrder: List[T] = ???
     def inOrder: List[T] = ???
@@ -37,6 +38,22 @@ trait BinaryTreesSolutions {
 
     def nodeCount: Int = 1 + left.nodeCount + right.nodeCount
 
+    def leafCount: Int =
+      if (left == End && right == End) 1
+      else left.leafCount + right.leafCount
+
+    def leafList: List[T] =
+      if (left == End && right == End) List(value)
+      else left.leafList ::: right.leafList
+
+    def internalList: List[T] =
+      if (left == End && right == End) Nil
+      else value :: left.internalList ::: right.internalList
+
+    def atLevel(n: Int): List[T] =
+      if (n == 1) List(value)
+      else left.atLevel(n - 1) ::: right.atLevel(n - 1)
+
     def layoutBinaryTree: PositionedNode[T] = ???
     def layoutBinaryTree2: PositionedNode[T] = ???
     def layoutBinaryTree3: PositionedNode[T] = ???
@@ -52,6 +69,10 @@ trait BinaryTreesSolutions {
     def addValue[S <% Ordered[S]](s: S): Tree[S] = Node(s)
 
     def nodeCount: Int = 0
+    def leafCount: Int = 0
+    def leafList: List[Nothing] = Nil
+    def internalList: List[Nothing] = Nil
+    def atLevel(n: Int): List[Nothing] = Nil
   }
 
   object Node {
@@ -121,11 +142,23 @@ trait BinaryTreesSolutions {
 
     def hbalTreesWithNodes[T](n: Int, e: T): List[Tree[T]] = {
       val maxH = maxHbalHeight(n)
-      val minH = (math.log(n) / math.log(2)).toInt
+      val minH = (log(n) / log(2)).toInt
       (minH to maxH).flatMap(hbalTrees(_, e)).toList.filter(_.nodeCount == n)
     }
 
-    def completeBinaryTree[T](n: Int, e: T): List[Tree[T]] = ???
+    def completeBinaryTree[T](n: Int, e: T): Tree[T] = {
+      if (n == 0) End
+      else {
+        val fullTreeNodes = pow(2, (log(n + 1) / log(2)).toInt).toInt - 1
+        val fullChildTreeNodes = (fullTreeNodes - 1) / 2
+        val rem = n - fullTreeNodes
+        val leftChildRem = min(rem, (fullTreeNodes + 1) / 2)
+        Node(e,
+          completeBinaryTree(fullChildTreeNodes + leftChildRem, e),
+          completeBinaryTree(fullChildTreeNodes + rem - leftChildRem, e)
+        )
+      }
+    }
 
     def fromString(string: String): Node[Char] = ???
     def fromDotString(string: String): Node[Char] = ???
