@@ -16,6 +16,12 @@ trait BinaryTreesSolutions {
     def internalList: List[T]
     def atLevel(n: Int): List[T]
 
+    def layoutBinaryTree: Tree[T] = layoutBinaryTreeAux(1, 1)._1
+    protected[s99] def layoutBinaryTreeAux(x: Int, y: Int): (Tree[T], Int)
+
+    def layoutBinaryTree2: Tree[T] = ???
+    def layoutBinaryTree3: Tree[T] = ???
+
     def preOrder: List[T] = ???
     def inOrder: List[T] = ???
     def toDotString: String = ???
@@ -54,9 +60,11 @@ trait BinaryTreesSolutions {
       if (n == 1) List(value)
       else left.atLevel(n - 1) ::: right.atLevel(n - 1)
 
-    def layoutBinaryTree: PositionedNode[T] = ???
-    def layoutBinaryTree2: PositionedNode[T] = ???
-    def layoutBinaryTree3: PositionedNode[T] = ???
+    protected[s99] def layoutBinaryTreeAux(x: Int, y: Int): (PositionedNode[T], Int) = {
+      val (newLeft, leftPos) = left.layoutBinaryTreeAux(x, y + 1)
+      val (newRight, rightPos) = right.layoutBinaryTreeAux(leftPos + 1, y + 1)
+      (PositionedNode(value, newLeft, newRight, leftPos, y), rightPos)
+    }
 
     def show: String = ???
   }
@@ -64,15 +72,17 @@ trait BinaryTreesSolutions {
   case object End extends Tree[Nothing] {
     override def toString = "."
 
-    def isMirrorOf(t1: Tree[_]): Boolean = (t1 == End)
-    def isSymmetric: Boolean = true
-    def addValue[S <% Ordered[S]](s: S): Tree[S] = Node(s)
+    def isMirrorOf(t1: Tree[_]) = (t1 == End)
+    def isSymmetric = true
+    def addValue[S <% Ordered[S]](s: S) = Node(s)
 
-    def nodeCount: Int = 0
-    def leafCount: Int = 0
-    def leafList: List[Nothing] = Nil
-    def internalList: List[Nothing] = Nil
-    def atLevel(n: Int): List[Nothing] = Nil
+    def nodeCount = 0
+    def leafCount = 0
+    def leafList = Nil
+    def internalList = Nil
+    def atLevel(n: Int) = Nil
+
+    protected[s99] def layoutBinaryTreeAux(x: Int, y: Int) = (End, x)
   }
 
   object Node {
@@ -170,9 +180,17 @@ trait BinaryTreesSolutions {
 
   class PositionedNode[+T](override val value: T,
                            override val left: Tree[T],
-                           override val right: Tree[T], x: Int, y: Int) extends Node[T](value, left, right) {
+                           override val right: Tree[T], val x: Int, val y: Int)
+    extends Node[T](value, left, right) {
+
     override def toString = "T[" + x.toString + "," + y.toString + "](" +
       value.toString + " " + left.toString + " " + right.toString + ")"
   }
 
+  object PositionedNode {
+    def apply[T](value: T, left: Tree[T], right: Tree[T], x: Int, y: Int) =
+      new PositionedNode[T](value, left, right, x, y)
+    def unapply[T](p: PositionedNode[T]) =
+      Some((p.value, p.left, p.right, p.x, p.y))
+  }
 }
