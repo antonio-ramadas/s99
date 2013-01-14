@@ -15,11 +15,20 @@ trait BinaryTreesSolutions {
     def leafList: List[T]
     def internalList: List[T]
     def atLevel(n: Int): List[T]
+    def height: Int
 
     def layoutBinaryTree: Tree[T] = layoutBinaryTreeAux(1, 1)._1
     protected[s99] def layoutBinaryTreeAux(x: Int, y: Int): (Tree[T], Int)
 
-    def layoutBinaryTree2: Tree[T] = ???
+    def layoutBinaryTree2: Tree[T] = {
+      val h = height
+      val rootX = 1 + (1 until leftPathHeight).map(i => 1 << (h - i - 1)).sum
+      layoutBinaryTree2Aux(rootX, 1, h)
+    }
+
+    protected[s99] def leftPathHeight: Int
+    protected[s99] def layoutBinaryTree2Aux(x: Int, y: Int, h: Int): Tree[T]
+
     def layoutBinaryTree3: Tree[T] = ???
 
     def preOrder: List[T] = ???
@@ -60,11 +69,21 @@ trait BinaryTreesSolutions {
       if (n == 1) List(value)
       else left.atLevel(n - 1) ::: right.atLevel(n - 1)
 
+    def height: Int = max(left.height, right.height) + 1
+
     protected[s99] def layoutBinaryTreeAux(x: Int, y: Int): (PositionedNode[T], Int) = {
       val (newLeft, leftPos) = left.layoutBinaryTreeAux(x, y + 1)
       val (newRight, rightPos) = right.layoutBinaryTreeAux(leftPos + 1, y + 1)
       (PositionedNode(value, newLeft, newRight, leftPos, y), rightPos)
     }
+
+    protected[s99] def leftPathHeight: Int = left.leftPathHeight + 1
+
+    protected[s99] def layoutBinaryTree2Aux(x: Int, y: Int, h: Int): Tree[T] =
+      PositionedNode(value,
+        left.layoutBinaryTree2Aux(x - (1 << (h - 2)), y + 1, h - 1),
+        right.layoutBinaryTree2Aux(x + (1 << (h - 2)), y + 1, h - 1),
+        x, y)
 
     def show: String = ???
   }
@@ -81,8 +100,11 @@ trait BinaryTreesSolutions {
     def leafList = Nil
     def internalList = Nil
     def atLevel(n: Int) = Nil
+    def height = 0
 
     protected[s99] def layoutBinaryTreeAux(x: Int, y: Int) = (End, x)
+    protected[s99] def leftPathHeight = 0
+    protected[s99] def layoutBinaryTree2Aux(x: Int, y: Int, h: Int) = End
   }
 
   object Node {
