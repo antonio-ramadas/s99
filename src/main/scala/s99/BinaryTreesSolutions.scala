@@ -98,12 +98,6 @@ trait BinaryTreesSolutions {
     protected[s99] def layoutBinaryTree3Aux(x: Int, y: Int): Tree[T] = {
       val newLeft = left.layoutBinaryTree3Aux(x - 1, y + 1)
       val newRight = right.layoutBinaryTree3Aux(x + 1, y + 1)
-
-      println(newLeft)
-      println("With ranges: " + newLeft.levelRanges)
-      println(newRight)
-      println("With ranges: " + newRight.levelRanges)
-
       val gap = newLeft.levelRanges.zip(newRight.levelRanges).foldLeft(0) {
         case (g, ((_, a2), (b1, _))) =>
           if(a2 - g < b1 + g) g
