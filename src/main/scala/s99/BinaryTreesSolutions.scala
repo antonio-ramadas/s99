@@ -30,8 +30,9 @@ trait BinaryTreesSolutions {
     protected[s99] def layoutBinaryTree2Aux(x: Int, y: Int, h: Int): Tree[T]
 
     def layoutBinaryTree3: Tree[T]
+    protected[s99] def layoutBinaryTree3Aux(x: Int, y: Int): Tree[T]
     protected[s99] def levelRanges: List[(Int, Int)]
-    protected[s99] def translate(dx: Int, dy: Int): Tree[T]
+    protected[s99] def translate(dx: Int, dy: Int = 0): Tree[T]
 
     def preOrder: List[T] = ???
     def inOrder: List[T] = ???
@@ -88,14 +89,35 @@ trait BinaryTreesSolutions {
         x, y)
 
     def layoutBinaryTree3: Tree[T] = {
-      this
+      val newTree = layoutBinaryTree3Aux(0, 1)
+      val leftBound = newTree.levelRanges.minBy(_._1)._1
+      if(leftBound > 0) newTree
+      else newTree.translate(-leftBound + 1)
+    }
+
+    protected[s99] def layoutBinaryTree3Aux(x: Int, y: Int): Tree[T] = {
+      val newLeft = left.layoutBinaryTree3Aux(x - 1, y + 1)
+      val newRight = right.layoutBinaryTree3Aux(x + 1, y + 1)
+
+      println(newLeft)
+      println("With ranges: " + newLeft.levelRanges)
+      println(newRight)
+      println("With ranges: " + newRight.levelRanges)
+
+      val gap = newLeft.levelRanges.zip(newRight.levelRanges).foldLeft(0) {
+        case (g, ((_, a2), (b1, _))) =>
+          if(a2 - g < b1 + g) g
+          else (a2 - b1) / 2 + 1
+      }
+      PositionedNode(value, newLeft.translate(-gap), newRight.translate(gap), x, y)
     }
 
     protected[s99] def levelRanges: List[(Int, Int)] =
       throw new UnsupportedOperationException
 
     protected[s99] def translate(dx: Int, dy: Int): Tree[T] =
-      Node(value, left.translate(dx, dy), right.translate(dx, dy))
+      if(dx == 0 && dy == 0) this
+      else Node(value, left.translate(dx, dy), right.translate(dx, dy))
 
     def show: String = ???
   }
@@ -119,6 +141,7 @@ trait BinaryTreesSolutions {
     protected[s99] def layoutBinaryTree2Aux(x: Int, y: Int, h: Int) = End
 
     def layoutBinaryTree3 = End
+    protected[s99] def layoutBinaryTree3Aux(x: Int, y: Int) = End
     protected[s99] def levelRanges = Nil
     protected[s99] def translate(dx: Int, dy: Int) = End
   }
@@ -224,17 +247,16 @@ trait BinaryTreesSolutions {
     override def toString = "T[" + x.toString + "," + y.toString + "](" +
       value.toString + " " + left.toString + " " + right.toString + ")"
 
-    override protected[s99] def translate(dx: Int, dy: Int): Tree[T] =
-      PositionedNode(value, left.translate(dx, dy), right.translate(dx, dy), x + dx, y + dy)
-
     override protected[s99] def levelRanges: List[(Int, Int)] = {
-      val leftRanges = left.levelRanges
-      val rightRanges = right.levelRanges
-      val zero = (Int.MaxValue, Int.MinValue)
-      (x, x) :: leftRanges.zipAll(rightRanges, zero, zero).map {
+      (x, x) :: left.levelRanges.zipAll(right.levelRanges, null, null).map {
+        case (null, b) => b
+        case (a, null) => a
         case ((a1, a2), (b1, b2)) => (min(a1, b1), min(a2, b2))
       }
     }
+
+    override protected[s99] def translate(dx: Int, dy: Int): Tree[T] =
+      PositionedNode(value, left.translate(dx, dy), right.translate(dx, dy), x + dx, y + dy)
   }
 
   object PositionedNode {
