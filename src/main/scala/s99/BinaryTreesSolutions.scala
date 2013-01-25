@@ -34,6 +34,7 @@ trait BinaryTreesSolutions {
     protected[s99] def levelRanges: List[(Int, Int)]
     protected[s99] def translate(dx: Int, dy: Int = 0): Tree[T]
 
+    def show: String = ???
     def preOrder: List[T] = ???
     def inOrder: List[T] = ???
     def toDotString: String = ???
@@ -112,8 +113,6 @@ trait BinaryTreesSolutions {
     protected[s99] def translate(dx: Int, dy: Int): Tree[T] =
       if(dx == 0 && dy == 0) this
       else Node(value, left.translate(dx, dy), right.translate(dx, dy))
-
-    def show: String = ???
   }
 
   case object End extends Tree[Nothing] {
@@ -225,12 +224,9 @@ trait BinaryTreesSolutions {
       }
     }
 
-    def fromString(string: String): Node[Char] = ???
-    def fromDotString(string: String): Node[Char] = ???
-
-    def string2Tree(string: String): Tree[Char] = ???
-
-    def preInTree(lists: List[Char]*): Node[Char] = ???
+    def fromString(string: String): Tree[Char] = ???
+    def preInTree[T](pre: List[T], in: List[T]): Tree[T] = ???
+    def fromDotString(string: String): Tree[Char] = ???
   }
 
   class PositionedNode[+T](override val value: T,
