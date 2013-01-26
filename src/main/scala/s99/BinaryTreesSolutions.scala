@@ -1,6 +1,7 @@
 package s99
 
 import math._
+import util.parsing.combinator.RegexParsers
 import Solutions._
 
 trait BinaryTreesSolutions {
@@ -34,10 +35,10 @@ trait BinaryTreesSolutions {
     protected[s99] def levelRanges: List[(Int, Int)]
     protected[s99] def translate(dx: Int, dy: Int = 0): Tree[T]
 
-    def show: String = ???
+    def show(implicit ev: T <:< Char): String
     def preOrder: List[T] = ???
     def inOrder: List[T] = ???
-    def toDotString: String = ???
+    def toDotString(implicit ev: T <:< Char): String = ???
   }
 
   case class Node[+T](value: T, left: Tree[T], right: Tree[T]) extends Tree[T] {
@@ -113,6 +114,11 @@ trait BinaryTreesSolutions {
     protected[s99] def translate(dx: Int, dy: Int): Tree[T] =
       if(dx == 0 && dy == 0) this
       else Node(value, left.translate(dx, dy), right.translate(dx, dy))
+
+    def show(implicit ev: T <:< Char): String = (left, right) match {
+      case (End, End) => value.toString
+      case _ => "%s(%s,%s)".format(value.toString, left.show, right.show)
+    }
   }
 
   case object End extends Tree[Nothing] {
@@ -137,6 +143,8 @@ trait BinaryTreesSolutions {
     protected[s99] def layoutBinaryTree3Aux(x: Int, y: Int) = End
     protected[s99] def levelRanges = Nil
     protected[s99] def translate(dx: Int, dy: Int) = End
+
+    def show(implicit ev: Nothing <:< Char) = ""
   }
 
   object Node {
@@ -224,7 +232,17 @@ trait BinaryTreesSolutions {
       }
     }
 
-    def fromString(string: String): Tree[Char] = ???
+    def fromString(string: String): Tree[Char] = new RegexParsers {
+      val char = "[a-zA-Z]".r
+      val end = "" ^^ { case _ => End }
+      val leaf = char ^^ { case c => Node(c.head) }
+      val node = char ~ "(" ~ tree ~ "," ~ tree ~ ")" ^^ {
+        case v ~ "(" ~ left ~ "," ~ right ~ ")" => Node(v.head, left, right)
+      }
+      val tree: Parser[Tree[Char]] = node | leaf | end
+      val result = parse(tree, string)
+    }.result.get
+
     def preInTree[T](pre: List[T], in: List[T]): Tree[T] = ???
     def fromDotString(string: String): Tree[Char] = ???
   }
