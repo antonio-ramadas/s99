@@ -36,9 +36,9 @@ trait BinaryTreesSolutions {
     protected[s99] def translate(dx: Int, dy: Int = 0): Tree[T]
 
     def show(implicit ev: T <:< Char): String
-    def preOrder: List[T] = ???
-    def inOrder: List[T] = ???
-    def toDotString(implicit ev: T <:< Char): String = ???
+    def preOrder: List[T]
+    def inOrder: List[T]
+    def toDotString(implicit ev: T <:< Char): String
   }
 
   case class Node[+T](value: T, left: Tree[T], right: Tree[T]) extends Tree[T] {
@@ -119,6 +119,12 @@ trait BinaryTreesSolutions {
       case (End, End) => value.toString
       case _ => "%s(%s,%s)".format(value.toString, left.show, right.show)
     }
+
+    def preOrder: List[T] = value :: left.preOrder ::: right.preOrder
+    def inOrder: List[T] = left.inOrder ::: value :: right.inOrder
+
+    def toDotString(implicit ev: T <:< Char): String =
+      value.toString + left.toDotString + right.toDotString
   }
 
   case object End extends Tree[Nothing] {
@@ -145,6 +151,9 @@ trait BinaryTreesSolutions {
     protected[s99] def translate(dx: Int, dy: Int) = End
 
     def show(implicit ev: Nothing <:< Char) = ""
+    def preOrder = Nil
+    def inOrder = Nil
+    def toDotString(implicit ev: Nothing <:< Char) = "."
   }
 
   object Node {
@@ -234,8 +243,8 @@ trait BinaryTreesSolutions {
 
     def fromString(string: String): Tree[Char] = new RegexParsers {
       val char = "[a-zA-Z]".r
-      val end = "" ^^ { case _ => End }
-      val leaf = char ^^ { case c => Node(c.head) }
+      val end = "" ^^ { _ => End }
+      val leaf = char ^^ { c => Node(c.head) }
       val node = char ~ "(" ~ tree ~ "," ~ tree ~ ")" ^^ {
         case v ~ "(" ~ left ~ "," ~ right ~ ")" => Node(v.head, left, right)
       }
@@ -243,8 +252,23 @@ trait BinaryTreesSolutions {
       val result = parse(tree, string)
     }.result.get
 
-    def preInTree[T](pre: List[T], in: List[T]): Tree[T] = ???
-    def fromDotString(string: String): Tree[Char] = ???
+    def preInTree[T](pre: List[T], in: List[T]): Tree[T] = pre match {
+      case Nil => End
+      case x :: xs =>
+        val (inLeft, inCenterRight) = in.span(_ != x)
+        val (preLeft, preRight) = xs.splitAt(inLeft.length)
+        Node(x, preInTree(preLeft, inLeft), preInTree(preRight, inCenterRight.tail))
+    }
+
+    def fromDotString(string: String): Tree[Char] = new RegexParsers {
+      val char = "[a-zA-Z]".r
+      val end = "." ^^ { _ => End }
+      val node = char ~ tree ~ tree ^^ {
+        case v ~ left ~ right => Node(v.head, left, right)
+      }
+      val tree: Parser[Tree[Char]] = node | end
+      val result = parse(tree, string)
+    }.result.get
   }
 
   class PositionedNode[+T](override val value: T,
