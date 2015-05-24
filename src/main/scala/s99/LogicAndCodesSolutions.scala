@@ -1,12 +1,10 @@
 package s99
 
-import Solutions._
-import collection.mutable.PriorityQueue
+import scala.collection.mutable
 
 trait LogicAndCodesSolutions { outer =>
 
-  implicit def extendBoolean(a: Boolean): ExtendedBoolean = ExtendedBoolean(a)
-  case class ExtendedBoolean(a: Boolean) {
+  implicit class ExtendedBoolean(a: Boolean) {
     def and(b: => Boolean): Boolean = outer.and(a, b)
     def or(b: => Boolean): Boolean = outer.or(a, b)
     def nand(b: => Boolean): Boolean = outer.nand(a, b)
@@ -53,7 +51,7 @@ trait LogicAndCodesSolutions { outer =>
     }
 
     // a shame there is no immutable priority queue implementation in Scala
-    val queue = PriorityQueue[Node](list.map(Leaf.tupled): _*)
+    val queue = mutable.PriorityQueue[Node](list.map(Leaf.tupled): _*)
     def buildTree: Node =
       if (queue.length < 2) queue.dequeue()
       else {

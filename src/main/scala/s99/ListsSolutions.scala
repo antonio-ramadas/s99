@@ -1,7 +1,6 @@
 package s99
 
-import util.Random
-import Solutions._
+import scala.util.Random
 
 trait ListsSolutions {
 

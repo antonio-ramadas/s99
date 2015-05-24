@@ -1,13 +1,11 @@
 package s99
 
-import Solutions._
-import util.parsing.combinator.RegexParsers
+import scala.util.parsing.combinator.RegexParsers
 
 trait MultiwayTreesSolutions {
 
-  case class MTree[+T](value: T, children: List[MTree[T]] = List()) {
-
-    override def toString = "M(" + value.toString + " {" + children.map(_.toString).mkString(",") + "})"
+  case class MTree[+T](value: T, children: List[MTree[T]] = Nil) {
+    override def toString = s"M($value ${children.mkString(",")})"
 
     def nodeCount: Int = 1 + children.map(_.nodeCount).sum
     def show(implicit ev: T <:< Char): String = value.toChar + children.map(_.show).mkString + "^"

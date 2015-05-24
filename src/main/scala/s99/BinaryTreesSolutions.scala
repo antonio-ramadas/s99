@@ -1,15 +1,15 @@
 package s99
 
-import math._
-import util.parsing.combinator.RegexParsers
-import Solutions._
+import scala.Ordering.Implicits._
+import scala.math._
+import scala.util.parsing.combinator.RegexParsers
 
 trait BinaryTreesSolutions {
 
   sealed abstract class Tree[+T] {
     def isMirrorOf(t: Tree[_]): Boolean
     def isSymmetric: Boolean
-    def addValue[S >: T <% Ordered[S]](s: S): Tree[S]
+    def addValue[S >: T: Ordering](s: S): Tree[S]
 
     def nodeCount: Int
     def leafCount: Int
@@ -42,7 +42,7 @@ trait BinaryTreesSolutions {
   }
 
   case class Node[+T](value: T, left: Tree[T], right: Tree[T]) extends Tree[T] {
-    override def toString = "T(" + value.toString + " " + left.toString + " " + right.toString + ")"
+    override def toString = s"T($value $left $right)"
 
     def isMirrorOf(t1: Tree[_]): Boolean = t1 match {
       case End => false
@@ -52,7 +52,7 @@ trait BinaryTreesSolutions {
 
     def isSymmetric: Boolean = left.isMirrorOf(right)
 
-    def addValue[S >: T <% Ordered[S]](s: S): Tree[S] =
+    def addValue[S >: T: Ordering](s: S): Tree[S] =
       if (s < value) Node(value, left.addValue(s), right)
       else Node(value, left, right.addValue(s))
 
@@ -132,7 +132,7 @@ trait BinaryTreesSolutions {
 
     def isMirrorOf(t1: Tree[_]) = (t1 == End)
     def isSymmetric = true
-    def addValue[S <% Ordered[S]](s: S) = Node(s)
+    def addValue[S: Ordering](s: S) = Node(s)
 
     def nodeCount = 0
     def leafCount = 0
@@ -173,7 +173,7 @@ trait BinaryTreesSolutions {
         (left, right) <- List((small, big), (big, small))
       } yield Node(e, left, right)
 
-    def fromList[T <% Ordered[T]](list: List[T]): Tree[T] =
+    def fromList[T: Ordering](list: List[T]): Tree[T] =
       list.foldLeft(End: Tree[T])(_.addValue(_))
 
     def symmetricBalancedTrees[T](n: Int, e: T): List[Tree[T]] =
@@ -276,8 +276,7 @@ trait BinaryTreesSolutions {
                            override val right: Tree[T],
                            val x: Int,
                            val y: Int) extends Node[T](value, left, right) {
-    override def toString = "T[" + x.toString + "," + y.toString + "](" +
-      value.toString + " " + left.toString + " " + right.toString + ")"
+    override def toString = s"T[$x, $y]($value $left $right)"
 
     override protected[s99] def levelRanges: List[(Int, Int)] = {
       (x, x) :: left.levelRanges.zipAll(right.levelRanges, null, null).map {

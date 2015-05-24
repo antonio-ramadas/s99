@@ -1,13 +1,9 @@
 package s99
 
-import Solutions._
-import language.implicitConversions
-
 trait ArithmeticSolutions {
-  // add new functions to integers
-  implicit def extendInt(n: Int): ExtendedInt = ExtendedInt(n)
 
-  case class ExtendedInt(n: Int) {
+  // add new functions to integers
+  implicit class ExtendedInt(n: Int) {
 
     def isPrime: Boolean =
       if (n == 1) false
