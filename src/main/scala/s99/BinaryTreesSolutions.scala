@@ -276,7 +276,7 @@ trait BinaryTreesSolutions {
                            override val right: Tree[T],
                            val x: Int,
                            val y: Int) extends Node[T](value, left, right) {
-    override def toString = s"T[$x, $y]($value $left $right)"
+    override def toString = s"T[$x,$y]($value $left $right)"
 
     override protected[s99] def levelRanges: List[(Int, Int)] = {
       (x, x) :: left.levelRanges.zipAll(right.levelRanges, null, null).map {
