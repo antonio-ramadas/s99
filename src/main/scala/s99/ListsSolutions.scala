@@ -1,9 +1,21 @@
 package s99
 
 trait ListsSolutions {
-  def last[T](list: List[T]): T = ???
-  def penultimate[T](list: List[T]): T = ???
-  def nth[T](n: Int, list: List[T]): T = ???
+  def last[T](list: List[T]): T = list match {
+    case Nil => throw new Exception("There is no last element of empty list")
+    case x :: Nil => x
+    case _ :: xs => last(xs)
+  }
+
+  def penultimate[T](list: List[T]): T = list match {
+    case Nil => throw new Exception("There is no penultimate element of empty list")
+    case x :: Nil => throw new Exception("There is no penultimate element of a single element list")
+    case x :: _ :: Nil => x
+    case _ :: xs => penultimate(xs)
+  }
+
+  def nth[T](n: Int, list: List[T]): T = if (n == 0) list.head else nth(n-1, list.tail)
+
   def length[T](list: List[T]): Int = ???
   def reverse[T](list: List[T]): List[T] = ???
   def isPalindrome[T](list: List[T]): Boolean = ???
