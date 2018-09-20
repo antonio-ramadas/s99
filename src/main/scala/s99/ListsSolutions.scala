@@ -40,13 +40,51 @@ trait ListsSolutions {
     case x :: xs => x :: compress(xs)
   }
 
-  def pack[T](list: List[T]): List[List[T]] = ???
+  def pack[T](list: List[T]): List[List[T]] = list match {
+    case Nil => Nil
+    case z :: zs =>
+      def packAux(l: List[T], curr: List[T]): (List[T], List[T]) = (l, curr) match {
+        case (Nil, xs) => (Nil, xs)
+        case (x :: xs, y :: ys) if x == y => packAux(xs, x :: y :: ys)
+        case _ => (l, curr)
+      }
 
-  def encode[T](list: List[T]): List[(Int, T)] = ???
+      val (l, curr) = packAux(zs, List(z))
 
-  def encodeModified[T](list: List[T]): List[Any] = ???
+      curr :: pack(l)
+  }
 
-  def decode[T](list: List[(Int, T)]): List[T] = ???
+  def encode[T](list: List[T]): List[(Int, T)] = {
+    def enc(l: List[List[T]]): List[(Int, T)] = l match {
+      case Nil => Nil
+      case x :: xs => (x.size, x.head) :: enc(xs)
+    }
+
+    val packed = pack(list)
+
+    enc(packed)
+  }
+
+  def encodeModified[T](list: List[T]): List[Any] = {
+    val encoded = encode(list)
+
+    def encM(list: List[(Int, T)]): List[Any] = list match {
+      case Nil => Nil
+      case (i, el) :: xs => (if (i == 1) el else (i, el)) :: encM(xs)
+    }
+
+    encM(encoded)
+  }
+
+  def decode[T](list: List[(Int, T)]): List[T] = list match {
+    case Nil => Nil
+    case (i, el) :: xs =>
+
+      def dec(i: Int, el: T): List[T] = if (i == 0) Nil else el :: dec(i-1, el)
+
+      dec(i, el) ::: decode(xs)
+
+  }
 
   def encodeDirect[T](list: List[T]): List[(Int, T)] = ???
 
