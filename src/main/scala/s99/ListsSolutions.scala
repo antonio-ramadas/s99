@@ -34,7 +34,7 @@ trait ListsSolutions {
     case x :: xs => x :: flatten(xs)
   }
 
-  def compress[T](list: List[T]): List[T] = {
+  def compress[T](list: List[T]): List[T] = list match {
     case Nil => Nil
     case x :: x1 :: xs if x == x1 => compress(x1 :: xs)
     case x :: xs => x :: compress(xs)
