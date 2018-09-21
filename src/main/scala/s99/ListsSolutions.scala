@@ -86,13 +86,28 @@ trait ListsSolutions {
 
   }
 
-  def encodeDirect[T](list: List[T]): List[(Int, T)] = ???
+  def encodeDirect[T](list: List[T]): List[(Int, T)] = list match {
+    case Nil => Nil
+    case x :: _ => (list.takeWhile(x == _).size, x) :: encodeDirect(list.dropWhile(x == _))
+  }
 
-  def duplicate[T](list: List[T]): List[T] = ???
+  def duplicate[T](list: List[T]): List[T] = list match {
+    case Nil => Nil
+    case x :: xs => x :: x :: duplicate(xs)
+  }
 
-  def duplicateN[T](n: Int, list: List[T]): List[T] = ???
+  def duplicateN[T](n: Int, list: List[T]): List[T] = list match {
+    case Nil => Nil
+    case x :: xs =>  List.fill(n)(x) ::: duplicateN(n, xs)
+  }
 
-  def drop[T](n: Int, list: List[T]): List[T] = ???
+  def drop[T](n: Int, list: List[T]): List[T] = {
+    def dropAux(left: Int, l: List[T]): List[T] = l match {
+      case Nil => Nil
+      case x :: xs => if (left == 1) dropAux(n, xs) else x :: dropAux(left-1, xs)
+    }
+    dropAux(n, list)
+  }
 
   def split[T](n: Int, list: List[T]): (List[T], List[T]) = ???
 
