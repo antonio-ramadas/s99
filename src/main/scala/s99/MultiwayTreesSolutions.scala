@@ -7,11 +7,15 @@ trait MultiwayTreesSolutions {
 
     def show: String = s"$value${children.map(_.show).mkString}^"
 
-    def internalPathLength: Int = ???
+    def internalPathLength: Int = children.map{ c => c.nodeCount + c.internalPathLength }.sum
 
-    def postOrder: List[T] = ???
+    def postOrder: List[T] = children.flatMap(_.postOrder) ::: List(value)
 
-    def lispyTree: String = ???
+    def lispyTree: String =
+      if (children.isEmpty)
+        value.toString
+      else
+        s"($value ${children.map(_.lispyTree).mkString(sep = " ")})"
 
     override def toString = s"M($value ${children.mkString(",")})"
   }
