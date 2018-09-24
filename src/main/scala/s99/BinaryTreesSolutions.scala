@@ -94,13 +94,32 @@ trait BinaryTreesSolutions {
 
     def symmetricBalancedTrees[T](n: Int, e: T): List[Tree[T]] = cBalanced(n, e).filter(_.isSymmetric)
 
-    def hbalTrees[T](h: Int, e: T): List[Tree[T]] = ???
-      /*if (h == 0)
-        List(End)
-      else
-        (for {
-          i <- math.pow(2, h).toInt to (math.pow(2, h + 1) - 1).toInt //math.max(0, 2*h-1) to math.max(0, math.pow(2, h).toInt-1)
-        } yield cBalanced(i, e)).toList.flatten*/
+    def hbalTrees[T](h: Int, e: T): List[Tree[T]] =
+      if (h < 0) Nil
+      else if (h == 0) List(End)
+      else {
+        val talls = hbalTrees(h - 1, e)
+
+        val balanced = for {
+          left <- talls
+          right <- talls
+        } yield Node(e, left, right)
+
+        val unbalanced = for {
+          tall <- talls
+          short <- hbalTrees(h - 2, e)
+          (left, right) <- List((tall, short), (short, tall))
+        } yield Node(e, left, right)
+
+        balanced ::: unbalanced
+      }
+
+    /*
+    // Shortest solution
+    (for {
+      nNodes <- math.pow(2, h-1).toInt until math.pow(2, h).toInt
+    } yield cBalanced(nNodes, e)).toList.flatten
+    */
 
     def minHbalNodes(h: Int): Int = ???
 
