@@ -121,11 +121,28 @@ trait BinaryTreesSolutions {
     } yield cBalanced(nNodes, e)).toList.flatten
     */
 
-    def minHbalNodes(h: Int): Int = ???
+    def minHbalNodes(h: Int): Int =
+      if (h <= 0) 0
+      else if (h == 1) 1
+      else minHbalNodes(h - 1) + minHbalNodes(h - 2) + 1
 
-    def maxHbalHeight(n: Int): Int = ???
+    /*
+    // Shortest solution
+    math.pow(2, h-1).toInt
+     */
 
-    def hbalTreesWithNodes[T](n: Int, e: T): List[Tree[T]] = ???
+    def maxHbalHeight(n: Int): Int =
+      if (n <= 0) 0
+      else if (n == 1) 1
+      else 1 + maxHbalHeight(n - n/2)
+
+    /*
+    // Shortest solution (log2(n) + 1)
+    // Scala does not have log2 built-in. So, we use the logarithm base change rule to help us out.
+    (math.log(n) / math.log(2)).toInt + 1
+     */
+
+    def hbalTreesWithNodes[T](n: Int, e: T): List[Tree[T]] = cBalanced(n, e)
 
     def completeBinaryTree[T](n: Int, e: T): Tree[T] = ???
 
