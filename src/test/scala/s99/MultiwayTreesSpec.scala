@@ -50,9 +50,17 @@ class MultiwayTreesSpec extends S99Specification with MultiwayTreesSolutions {
 
     string2MTree("a^") === MTree('a')
     string2MTree("af^^") === MTree('a', List(MTree('f')))
-    string2MTree("afg^^c^^") === MTree('a', List(MTree('f', List(MTree('g'))), MTree('c')))
+    string2MTree("afg^^c^^") === MTree('a', List(MTree('f', List(MTree('g'))), MTree('c')).sortBy(_.value))
     string2MTree("afg^^c^bd^e^^^") ===
-      MTree('a', List(MTree('f', List(MTree('g'))), MTree('c'), MTree('b', List(MTree('d'), MTree('e')))))
+      MTree('a', List(
+        MTree('f', List(
+          MTree('g')
+        ).sortBy(_.value)),
+        MTree('c'),
+        MTree('b', List(
+          MTree('d'),
+          MTree('e')).sortBy(_.value))
+      ).sortBy(_.value))
   }
 
   """P71 Determine the internal path length of a tree
